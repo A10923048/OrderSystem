@@ -1,10 +1,33 @@
 "use client";
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-
+import { getDocs, collection } from "firebase/firestore"
+import db from "@/services/db"
 
 export default function UserPage({ params }) {
+
+    const [carousel, setCarousel] = useState([]);
+
+    useEffect(() => {
+        async function fetchData() {
+            const querySnapshot = await getDocs(collection(db, "carousel"));
+            const newCarousel = [];
+            querySnapshot.forEach((doc) => {
+                newCarousel.push(doc.data());
+            });
+            setCarousel(newCarousel)
+        }
+        fetchData()
+    }, []);
+    const carouselItems = carousel.map((item, idx) => {
+        return (<div key={idx}>
+            <img src={item.img} alt="Album" style={{ maxWidth: '100%', height: 'auto' }} />
+        </div>)
+    })
+
+
     const responsive = {
 
         mobile: {
@@ -39,12 +62,8 @@ export default function UserPage({ params }) {
                         <p>放置活動宣傳照片（CSS Carouse）</p>
 
                         <Carousel responsive={responsive}>
-                            <div>  <img src="/img/c1.jpg" alt="Album" style={{ maxWidth: '100%', height: 'auto' }} /></div>
-                            <div> <img src="/img/c2.jpg" alt="img1" style={{ maxWidth: '100%', height: 'auto' }} /></div>
-                            <div> <img src="/img/c3.jpg" alt="img2" style={{ maxWidth: '100%', height: 'auto' }} />
-                            </div>
-                            <div><img src="/img/c4.jpg" alt="img2" style={{ maxWidth: '100%', height: 'auto' }} />
-                            </div>
+                            {carouselItems}
+
                         </Carousel>
 
                     </div>
